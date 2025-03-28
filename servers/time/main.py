@@ -1,4 +1,7 @@
 from fastapi import FastAPI, HTTPException, Body
+from fastapi.middleware.cors import CORSMiddleware
+
+
 from pydantic import BaseModel, Field
 from datetime import datetime, timezone
 from typing import Literal
@@ -10,6 +13,18 @@ app = FastAPI(
     version="1.0.0",
     description="Provides secure UTC/local time retrieval, formatting, timezone conversion, and comparison.",
 )
+
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # -------------------------------
 # Pydantic models

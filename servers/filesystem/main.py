@@ -1,5 +1,8 @@
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.responses import PlainTextResponse
+from fastapi.middleware.cors import CORSMiddleware
+
+
 from pydantic import BaseModel, Field
 import os
 import pathlib
@@ -9,9 +12,20 @@ import difflib
 
 app = FastAPI(
     title="Secure Filesystem API",
-    version="0.2.0",
+    version="0.1.0",
     description="A secure file manipulation server for reading, editing, writing, listing, and searching files with access restrictions.",
 )
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Constants
 ALLOWED_DIRECTORIES = [
