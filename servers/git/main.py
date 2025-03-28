@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 
 app = FastAPI(
     title="Git Management API",
+    version="0.1.0",
     description="An API to manage Git repositories with explicit endpoints, inputs, and outputs for better OpenAPI schemas.",
 )
 
