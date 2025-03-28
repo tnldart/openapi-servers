@@ -38,13 +38,13 @@ Reference implementations provided in this repository demonstrate common use-cas
 
 - **Filesystem Access** _(servers/filesystem)_ - Manage local file operations safely with configurable restrictions.
 - **Git Server** _(servers/git)_ - Expose Git repositories for searching, reading, and possibly writing via controlled API endpoints.
-- **Database Server** _(servers/database)_ - Query and inspect database schemas across common DB engines like PostgreSQL, MySQL, and SQLite.
+- **WIP: Database Server** _(servers/database)_ - Query and inspect database schemas across common DB engines like PostgreSQL, MySQL, and SQLite.
 - **Memory & Knowledge Graph** _(servers/memory)_ - Persistent memory management and semantic knowledge querying using popular and reliable storage techniques.
-- **Web Search & Fetch** _(servers/web-search)_ - Retrieve and convert web-based content securely into structured API results usable by LLMs.
+- **WIP: Web Search & Fetch** _(servers/web-search)_ - Retrieve and convert web-based content securely into structured API results usable by LLMs.
 
 (More examples and reference implementations will be actively developed and continually updated.)
 
-## 🔌 Bridge to MCP (Optional)
+## 🔌 Bridge to MCP (WIP: Optional)
 
 For your convenience, we also provide a simple, secure MCP-to-OpenAPI proxy server. This enables tool providers who initially implemented MCP servers to expose them effortlessly as standard OpenAPI-compatible APIs, ensuring existing MCP servers and resources remain accessible without additional hassle.
 
@@ -53,7 +53,7 @@ For your convenience, we also provide a simple, secure MCP-to-OpenAPI proxy serv
 ```bash
 cd servers/mcp-proxy
 pip install -r requirements.txt
-uvicorn proxy:app --reload
+python main.py -- uvx mcp-server-time
 ```
 
 This can simplify your migration or integration path, avoiding headaches typically associated with MCP's transport and security complexities.
