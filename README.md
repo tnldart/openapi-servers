@@ -27,7 +27,7 @@ cd openapi-servers
 # Example: Installing dependencies for a specific server 'filesystem'
 cd servers/filesystem
 pip install -r requirements.txt
-uvicorn main:app --reload
+uvicorn main:app --host 0.0.0.0 --reload
 ```
 
 Now, simply point your OpenAPI-compatible clients or AI agents to your local or publicly deployed URL—no configuration headaches, no complicated transports.
