@@ -44,7 +44,7 @@ Reference implementations provided in this repository demonstrate common use-cas
 
 (More examples and reference implementations will be actively developed and continually updated.)
 
-## 🔌 Bridge to MCP (WIP: Optional)
+## 🔌 WIP: Bridge to MCP (Optional)
 
 For your convenience, we also provide a simple, secure MCP-to-OpenAPI proxy server. This enables tool providers who initially implemented MCP servers to expose them effortlessly as standard OpenAPI-compatible APIs, ensuring existing MCP servers and resources remain accessible without additional hassle.
 
