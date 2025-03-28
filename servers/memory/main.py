@@ -203,7 +203,7 @@ def add_observations(req: AddObservationsRequest):
     results = []
 
     for obs in req.observations:
-        name = obs.entityName
+        name = obs.entityName.lower()
         contents = obs.contents
         entity = next((e for e in graph.entities if e.name == name), None)
         if not entity:
@@ -234,7 +234,7 @@ def delete_observations(req: DeleteObservationsRequest):
     graph = read_graph_file()
 
     for deletion in req.deletions:
-        name = deletion.entityName
+        name = deletion.entityName.lower()
         to_delete = deletion.observations
         entity = next((e for e in graph.entities if e.name == name), None)
         if entity:
