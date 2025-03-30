@@ -60,10 +60,24 @@ async def create_dynamic_endpoints(app: FastAPI, session: ClientSession):
         def make_endpoint_func(endpoint_name: str, FormModel):
             async def endpoint_func(form_data: FormModel):
                 args = form_data.model_dump()
-                print("Calling tool with arguments:", args)
-                print("Tool name:", endpoint_name)
-                result = await session.call_tool(endpoint_name, arguments=args)
-                return result
+                print(f"Calling {endpoint_name} with arguments:", args)
+
+                tool_call_result = await session.call_tool(
+                    endpoint_name, arguments=args
+                )
+
+                response = []
+                for content in tool_call_result.content:
+
+                    text = content.text
+                    if isinstance(text, str):
+                        try:
+                            text = json.loads(text)
+                        except json.JSONDecodeError:
+                            pass
+                    response.append(text)
+
+                return response
 
             return endpoint_func
 
