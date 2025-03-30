@@ -58,7 +58,7 @@ async def create_dynamic_endpoints(app: FastAPI, session: ClientSession):
         FormModel = create_model(f"{endpoint_name}_form_model", **model_fields)
 
         def make_endpoint_func(endpoint_name: str, FormModel):
-            async def endpoint_func(form_data: FormModel):
+            async def tool(form_data: FormModel):
                 args = form_data.model_dump()
                 print(f"Calling {endpoint_name} with arguments:", args)
 
@@ -79,16 +79,16 @@ async def create_dynamic_endpoints(app: FastAPI, session: ClientSession):
 
                 return response
 
-            return endpoint_func
+            return tool
 
-        endpoint_func = make_endpoint_func(endpoint_name, FormModel)
+        tool = make_endpoint_func(endpoint_name, FormModel)
 
         # Add endpoint to FastAPI with tool descriptions
         app.post(
             f"/{endpoint_name}",
             summary=endpoint_name.replace("_", " ").title(),
             description=endpoint_description,
-        )(endpoint_func)
+        )(tool)
 
 
 async def run(host: str, port: int, server_cmd: list[str]):
