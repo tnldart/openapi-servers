@@ -45,7 +45,7 @@ Reference implementations provided in this repository demonstrate common use-cas
 (More examples and reference implementations will be actively developed and continually updated.)
 
 
-> [!NOTE]  
+> [!IMPORTANT]  
 > 💡 Contribute Your Own Server
 > 
 > We strongly encourage the community to contribute their own OpenAPI tool server examples! This is more important than it might seem: The world doesn’t need another closed protocol or proprietary format gatekeeping innovation—we need clearly defined, open, and composable APIs backed by open documentation and proven tools. OpenAPI is the future-proof foundation we can all build on—together.
