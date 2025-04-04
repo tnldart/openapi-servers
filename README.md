@@ -30,6 +30,13 @@ pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --reload
 ```
 
+Or using Docker:
+
+```bash
+cd servers/filesystem
+docker compose up
+```
+
 Now, simply point your OpenAPI-compatible clients or AI agents to your local or publicly deployed URL—no configuration headaches, no complicated transports.
 
 ## 📂 Server Examples
