@@ -1,8 +1,9 @@
-import requests # Added for making HTTP requests
-from fastapi import FastAPI, HTTPException, Query # Added Query for GET params
+import requests
+import reverse_geocoder as rg # Added reverse_geocoder
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from typing import Optional, List # Added Optional and List
+from typing import Optional, List # Removed Literal, no longer needed for query param
 
 app = FastAPI(
     title="Weather API",
@@ -58,6 +59,8 @@ class WeatherForecastOutput(BaseModel):
 # -------------------------------
 
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
+# Countries officially using Fahrenheit
+FAHRENHEIT_COUNTRIES = {"US", "LR", "MM"} # USA, Liberia, Myanmar
 
 @app.get("/forecast", response_model=WeatherForecastOutput, summary="Get current weather and forecast")
 def get_weather_forecast(
@@ -67,13 +70,28 @@ def get_weather_forecast(
     """
     Retrieves current weather conditions and hourly forecast data
     for the specified latitude and longitude using the Open-Meteo API.
+    Temperature unit (Celsius/Fahrenheit) is determined automatically based on location.
     """
+    # Determine temperature unit based on location
+    try:
+        geo_results = rg.search((latitude, longitude), mode=1) # mode=1 for single result
+        if geo_results:
+            country_code = geo_results[0]['cc']
+            temperature_unit = "fahrenheit" if country_code in FAHRENHEIT_COUNTRIES else "celsius"
+        else:
+            # Default to Celsius if country cannot be determined
+            temperature_unit = "celsius"
+    except Exception:
+        # Handle potential errors during geocoding, default to Celsius
+        temperature_unit = "celsius"
+
     params = {
         "latitude": latitude,
         "longitude": longitude,
         "current": "temperature_2m,wind_speed_10m",
         "hourly": "temperature_2m,relative_humidity_2m,wind_speed_10m",
-        "timezone": "auto" # Automatically detect timezone
+        "timezone": "auto",
+        "temperature_unit": temperature_unit # Use determined unit
     }
     try:
         response = requests.get(OPEN_METEO_URL, params=params)
