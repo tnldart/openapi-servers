@@ -29,7 +29,7 @@ app.add_middleware(
 
 # Constants
 ALLOWED_DIRECTORIES = [
-    str(pathlib.Path(os.path.expanduser("~/mydir")).resolve())
+    str(pathlib.Path(os.path.expanduser("~/")).resolve())
 ]  # 👈 Replace with your paths
 
 # ------------------------------------------------------------------------------
@@ -184,7 +184,7 @@ async def create_directory(data: CreateDirectoryRequest = Body(...)):
 
 
 @app.post(
-    "/list_directory", response_class=PlainTextResponse, summary="List a directory"
+    "/list_directory", summary="List a directory"
 )
 async def list_directory(data: ListDirectoryRequest = Body(...)):
     """
@@ -196,10 +196,11 @@ async def list_directory(data: ListDirectoryRequest = Body(...)):
 
     listing = []
     for entry in dir_path.iterdir():
-        prefix = "[DIR]" if entry.is_dir() else "[FILE]"
-        listing.append(f"{prefix} {entry.name}")
+        entry_type = "directory" if entry.is_dir() else "file"
+        listing.append({"name": entry.name, "type": entry_type})
 
-    return "\n".join(listing)
+    # Return the list directly, FastAPI will serialize it to JSON
+    return listing
 
 
 @app.post("/directory_tree", summary="Recursive directory tree")
