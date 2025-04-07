@@ -38,8 +38,11 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
 
-# Change the ownership of /app directory and its contents to appuser
-RUN chown -R ${UID}:${UID} /app
+# Change the ownership of /app/data directory and its contents to appuser
+RUN mkdir -p /app/data && touch /app/data/memory.json && chown -R ${UID}:${UID} /app/data
+
+# Set a flag for the location of the database
+ENV MEMORY_FILE_PATH="/app/data/memory.json"
 
 # Switch to the non-privileged user to run the application.
 USER appuser
