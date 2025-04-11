@@ -62,7 +62,7 @@ Reference implementations provided in this repository demonstrate common use-cas
 > 
 > Let’s build an open ecosystem where every tool speaks the same language—yours.
 
-## 🔌 Bridge to MCP (Optional)
+## 🔌 Bridge MCP → OpenAPI (Optional)
 
 For the easiest way to expose your MCP tools as OpenAPI-compatible APIs, we recommend using [mcpo](https://github.com/open-webui/mcpo). This enables tool providers who initially implemented MCP servers to expose them effortlessly as standard OpenAPI-compatible APIs, ensuring existing MCP servers and resources remain accessible without additional hassle.
 
