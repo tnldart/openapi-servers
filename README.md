@@ -88,12 +88,10 @@ In addition to turning MCP tool servers into OpenAPI-compatible APIs (via mcpo o
 
 Several community-maintained projects are available to help with this:
 
-- 🌉 openapi-mcp-server (by janwilmake)  
-  ➤ https://github.com/janwilmake/openapi-mcp-server  
+- [🌉 openapi-mcp-server](https://github.com/janwilmake/openapi-mcp-server)
   Acts as a translator from any OpenAPI spec to an MCP tool, allowing for easy reuse of RESTful APIs within MCP-only frameworks.
 
-- 🔁 mcp-openapi-server (by ivo-toby)  
-  ➤ https://github.com/ivo-toby/mcp-openapi-server  
+- [🔁 mcp-openapi-server](https://github.com/ivo-toby/mcp-openapi-server)
   Another lightweight adapter that converts OpenAPI-described endpoints to usable MCP tool servers on the fly.
 
 With these bridges, you gain full interoperability in both directions:
