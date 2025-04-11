@@ -56,8 +56,6 @@ curl -H "Authorization: Bearer <your_token>" http://localhost:8000/get_user_info
 
 - Python 3.11+
 - FastAPI ⚡
-- httpx 🌐
-- Uvicorn 🔥
 
 ---
 

@@ -39,15 +39,18 @@ docker compose up
 
 Now, simply point your OpenAPI-compatible clients or AI agents to your local or publicly deployed URL—no configuration headaches, no complicated transports.
 
-## 📂 Server Examples
+## 📂 Server Reference Implementations
 
 Reference implementations provided in this repository demonstrate common use-cases clearly and simply:
 
-- **Filesystem Access** _(servers/filesystem)_ - Manage local file operations safely with configurable restrictions.
-- **Git Server** _(servers/git)_ - Expose Git repositories for searching, reading, and possibly writing via controlled API endpoints.
-- **WIP: Database Server** _(servers/database)_ - Query and inspect database schemas across common DB engines like PostgreSQL, MySQL, and SQLite.
-- **Memory & Knowledge Graph** _(servers/memory)_ - Persistent memory management and semantic knowledge querying using popular and reliable storage techniques.
-- **WIP: Web Search & Fetch** _(servers/web-search)_ - Retrieve and convert web-based content securely into structured API results usable by LLMs.
+- [**Filesystem Access**](servers/filesystem) - Manage local file operations safely with configurable restrictions.
+- [**Git Server**](servers/git) - Expose Git repositories for searching, reading, and possibly writing via controlled API endpoints.
+- [**Memory & Knowledge Graph**](servers/memory) - Persistent memory management and semantic knowledge querying using popular and reliable storage techniques.
+- [**Weather Server**](servers/weather) - Provide current weather conditions and forecasts from trusted public APIs.
+- [**Get User Info Server**](servers/get-user-info) - Access and return enriched user profile information from authentication providers or internal systems.
+- [**WIP: Web Search & Fetch**](servers/web-search) - Retrieve and convert web-based content securely into structured API results usable by LLMs.
+- [**WIP: Database Server**](servers/database) - Query and inspect database schemas across common DB engines like PostgreSQL, MySQL, and SQLite.
+
 
 (More examples and reference implementations will be actively developed and continually updated.)
 
