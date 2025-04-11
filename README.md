@@ -88,19 +88,22 @@ In addition to turning MCP tool servers into OpenAPI-compatible APIs (via mcpo),
 
 Several community-maintained projects are available to help with this:
 
-- [🌉 openapi-mcp-server](https://github.com/janwilmake/openapi-mcp-server)
-
+- [🌉 openapi-mcp-server](https://github.com/janwilmake/openapi-mcp-server)  
   Acts as a translator from any OpenAPI spec to an MCP tool, allowing for easy reuse of RESTful APIs within MCP-only frameworks.
 
-- [🔁 mcp-openapi-server](https://github.com/ivo-toby/mcp-openapi-server)
+- [🔁 mcp-openapi-server](https://github.com/ivo-toby/mcp-openapi-server)  
+  A lightweight adapter that converts OpenAPI-described endpoints to usable MCP tool servers on the fly.
 
-  Another lightweight adapter that converts OpenAPI-described endpoints to usable MCP tool servers on the fly.
+- [🌀 mcp-openapi-proxy](https://github.com/matthewhand/mcp-openapi-proxy)  
+  Wraps OpenAPI endpoints in a proxy that re-expresses them in MCP-compatible format with minimal configuration.
+
+- [⚡ fastapi_mcp](https://github.com/tadata-org/fastapi_mcp)  
+  A FastAPI extension that allows you to serve native FastAPI endpoints directly through the MCP protocol.
 
 With these bridges, you gain full interoperability in both directions:
 
-⟶ Run OpenAPI tools using existing MCP pipelines
-
-⟶ Upgrade or replace MCP-native tools with more stable, secure, OpenAPI-based implementations
+- Run OpenAPI tools using existing MCP pipelines  
+- Upgrade or replace MCP-native tools with more stable, secure, OpenAPI-based implementations
 
 This two-way bridge is a major step forward in simplifying tool architecture, empowering developers to choose the most efficient and future-proof infrastructure without compromising compatibility.
 
