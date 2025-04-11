@@ -99,6 +99,7 @@ Several community-maintained projects are available to help with this:
 With these bridges, you gain full interoperability in both directions:
 
 ⟶ Run OpenAPI tools using existing MCP pipelines
+
 ⟶ Upgrade or replace MCP-native tools with more stable, secure, OpenAPI-based implementations
 
 This two-way bridge is a major step forward in simplifying tool architecture, empowering developers to choose the most efficient and future-proof infrastructure without compromising compatibility.
