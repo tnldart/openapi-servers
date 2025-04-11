@@ -82,7 +82,7 @@ python main.py --host 0.0.0.0 --port 8000 -- uvx mcp-server-time --local-timezon
 
 Both methods help bridge existing MCP servers with OpenAPI clients, removing transport and security complexities during integration or migration.
 
-## 🔃 Optional: Bridge OpenAPI → MCP Tool Server
+## 🔃 Bridge OpenAPI → MCP (Optional)
 
 In addition to turning MCP tool servers into OpenAPI-compatible APIs (via mcpo or our proxy), it's also possible to go the other direction: expose your OpenAPI-compatible tool server as an MCP server. This makes it easy to integrate any OpenAPI tool into environments or agents that expect an MCP-compatible interface.
 
