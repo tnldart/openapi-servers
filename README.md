@@ -84,7 +84,7 @@ Both methods help bridge existing MCP servers with OpenAPI clients, removing tra
 
 ## 🔃 Bridge OpenAPI → MCP (Optional)
 
-In addition to turning MCP tool servers into OpenAPI-compatible APIs (via mcpo or our proxy), it's also possible to go the other direction: expose your OpenAPI-compatible tool server as an MCP server. This makes it easy to integrate any OpenAPI tool into environments or agents that expect an MCP-compatible interface.
+In addition to turning MCP tool servers into OpenAPI-compatible APIs (via mcpo), it's also possible to go the other direction: expose your OpenAPI-compatible tool server as an MCP server. This makes it easy to integrate any OpenAPI tool into environments or agents that expect an MCP-compatible interface.
 
 Several community-maintained projects are available to help with this:
 
