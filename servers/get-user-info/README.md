@@ -5,13 +5,11 @@ A lightweight FastAPI microservice that forwards an Authorization Bearer token t
 ## 🚀 Features
 
 - 🔁 Forwards Bearer tokens to your internal auth endpoint
-- ☁️ Async HTTP support with httpx
-- 🔒 Built-in 401 & 502 error handling
-- 🌍 CORS-friendly by default
+- 🔒 Built-in error handling
 
 ## 📦 Endpoints
 
-### GET /get_user_info
+### GET /get_session_user_info
 
 Forward your existing Bearer token and get authenticated user details.
 
