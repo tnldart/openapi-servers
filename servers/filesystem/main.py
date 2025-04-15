@@ -12,7 +12,7 @@ import difflib
 import shutil
 from datetime import datetime, timezone, timedelta
 import uuid
-from .config import ALLOWED_DIRECTORIES
+from config import ALLOWED_DIRECTORIES
 app = FastAPI(
     title="Secure Filesystem API",
     version="0.1.0",
