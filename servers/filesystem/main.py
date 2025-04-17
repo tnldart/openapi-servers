@@ -12,6 +12,7 @@ import difflib
 import shutil
 from datetime import datetime, timezone, timedelta # Added timedelta
 import uuid # Added uuid
+import json # Added json
 from config import ALLOWED_DIRECTORIES
 
 app = FastAPI(
@@ -143,9 +144,57 @@ class GetMetadataRequest(BaseModel):
 # Global state for pending confirmations
 # ------------------------------------------------------------------------------
 
-# Store pending confirmations: {token: {"path": str, "recursive": bool, "expiry": datetime}}
-pending_confirmations: Dict[str, Dict] = {}
+# --- Confirmation Token State Management (using a file) ---
+CONFIRMATION_FILE = pathlib.Path("./.pending_confirmations.json")
 CONFIRMATION_TTL_SECONDS = 60 # Token validity period
+
+def load_confirmations() -> Dict[str, Dict]:
+    """Loads pending confirmations from the JSON file."""
+    if not CONFIRMATION_FILE.exists():
+        return {}
+    try:
+        with CONFIRMATION_FILE.open("r") as f:
+            data = json.load(f)
+            # Convert expiry string back to datetime object
+            now = datetime.now(timezone.utc)
+            valid_confirmations = {}
+            for token, details in data.items():
+                try:
+                    details["expiry"] = datetime.fromisoformat(details["expiry"])
+                    # Clean up expired tokens during load
+                    if details["expiry"] > now:
+                         valid_confirmations[token] = details
+                except (ValueError, TypeError, KeyError):
+                     print(f"Warning: Skipping invalid confirmation data for token {token}")
+                     continue # Skip invalid entries
+            return valid_confirmations
+    except (json.JSONDecodeError, IOError) as e:
+        print(f"Error loading confirmations file: {e}. Returning empty dict.")
+        return {}
+
+def save_confirmations(confirmations: Dict[str, Dict]):
+    """Saves pending confirmations to the JSON file."""
+    try:
+        # Convert datetime objects to ISO strings for JSON serialization
+        serializable_confirmations = {}
+        for token, details in confirmations.items():
+             serializable_details = details.copy()
+             serializable_details["expiry"] = details["expiry"].isoformat()
+             serializable_confirmations[token] = serializable_details
+
+        with CONFIRMATION_FILE.open("w") as f:
+            json.dump(serializable_confirmations, f, indent=2)
+    except IOError as e:
+        print(f"Error saving confirmations file: {e}")
+
+# Clean up the file on startup if it exists from a previous run
+if CONFIRMATION_FILE.exists():
+    # print("Cleaning up stale confirmation file on startup.")
+    try:
+        CONFIRMATION_FILE.unlink()
+    except OSError as e:
+        # print(f"Warning: Could not delete stale confirmation file: {e}") # Removed print
+        pass # Silently ignore if cleanup fails, not critical
 
 # ------------------------------------------------------------------------------
 # Routes
@@ -201,9 +250,6 @@ async def write_file(data: WriteFileRequest = Body(...)):
         raise HTTPException(status_code=403, detail=f"Permission denied to write to {data.path}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to write to {data.path}: {str(e)}")
-
-
-# Removed duplicate import - already added Union at the top
 
 @app.post(
     "/edit_file",
@@ -356,12 +402,15 @@ async def delete_path(data: DeletePathRequest = Body(...)):
 
     Use 'recursive=True' to delete non-empty directories.
     """
+    pending_confirmations = load_confirmations() # Load state from file
     path = normalize_path(data.path)
     now = datetime.now(timezone.utc)
 
     # --- Step 2: Confirmation Request ---
     if data.confirmation_token:
+        # print(f"Attempting confirmation with token: {data.confirmation_token}") # Removed print
         if data.confirmation_token not in pending_confirmations:
+            # print(f"Error: Token '{data.confirmation_token}' not found in pending_confirmations.") # Removed print
             raise HTTPException(status_code=400, detail="Invalid or expired confirmation token.")
 
         confirmation_data = pending_confirmations[data.confirmation_token]
@@ -369,6 +418,7 @@ async def delete_path(data: DeletePathRequest = Body(...)):
         # Validate token expiry
         if now > confirmation_data["expiry"]:
             del pending_confirmations[data.confirmation_token] # Clean up expired token
+            save_confirmations(pending_confirmations) # Save updated state
             raise HTTPException(status_code=400, detail="Confirmation token has expired.")
 
         # Validate request parameters match
@@ -380,6 +430,7 @@ async def delete_path(data: DeletePathRequest = Body(...)):
 
         # --- Parameters match and token is valid: Proceed with deletion ---
         del pending_confirmations[data.confirmation_token] # Consume the token
+        save_confirmations(pending_confirmations) # Save updated state
 
         try:
             if not path.exists():
@@ -427,6 +478,7 @@ async def delete_path(data: DeletePathRequest = Body(...)):
             "recursive": data.recursive,
             "expiry": expiry_time,
         }
+        save_confirmations(pending_confirmations) # Save updated state
 
         # Return confirmation required response
         return ConfirmationRequiredResponse(
@@ -444,13 +496,13 @@ async def move_path(data: MovePathRequest = Body(...)):
     Returns JSON success message.
     """
     source = normalize_path(data.source_path)
-    destination = normalize_path(data.destination_path) # Also normalize destination
+    destination = normalize_path(data.destination_path)
 
     try:
         if not source.exists():
             raise HTTPException(status_code=404, detail=f"Source path not found: {data.source_path}")
 
-        shutil.move(str(source), str(destination)) # Raises FileNotFoundError, PermissionError etc.
+        shutil.move(str(source), str(destination))
         return SuccessResponse(message=f"Successfully moved '{data.source_path}' to '{data.destination_path}'")
 
     except PermissionError:
