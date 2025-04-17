@@ -2,7 +2,7 @@
 
 A powerful FastAPI-based server providing Slack workspace interactions using OpenAPI standards.
 
-📦 Built with:  
+📦 Built with:
 ⚡️ FastAPI • 📜 OpenAPI • 🐍 Python • 💬 Slack API
 
 ---
@@ -87,7 +87,7 @@ Each tool is available as a dedicated endpoint with full OpenAPI documentation.
 
 Once running, explore the interactive API documentation:
 
-🖥️ Swagger UI: http://localhost:8000/docs  
+🖥️ Swagger UI: http://localhost:8000/docs
 📄 OpenAPI JSON: http://localhost:8000/openapi.json
 
 The documentation includes detailed schemas, example requests, and response formats for all available tools.
@@ -103,5 +103,5 @@ The documentation includes detailed schemas, example requests, and response form
 
 ---
 
-Made with ❤️ by the Open WebUI community 🌍  
+Made with ❤️ by the Open WebUI community 🌍
 Explore more tools ➡️ https://github.com/open-webui/openapi-servers
