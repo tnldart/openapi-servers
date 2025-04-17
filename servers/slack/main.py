@@ -2,7 +2,7 @@
 import os
 import httpx
 import inspect
-from typing import Optional, List, Dict, Any, Type
+from typing import Optional, List, Dict, Any, Type, Callable
 from fastapi import FastAPI, HTTPException, Body, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -269,31 +269,35 @@ TOOL_MAPPING = {
     },
 }
 
-# Dynamically create endpoints for each tool
-for tool_name, config in TOOL_MAPPING.items():
-    args_model = config["args_model"]
-    method_to_call = config["method"]
-    tool_description = config["description"]
-
-    async def endpoint_func(args: args_model = Body(...), # type: ignore
-                            method=method_to_call): # Capture method in closure
+# Define a function factory to create endpoint handlers
+def create_endpoint_handler(tool_name: str, method: Callable, args_model: Type[BaseModel]):
+    async def endpoint_handler(args: args_model = Body(...)) -> ToolResponse:
         try:
             result = await method(args=args)
             return {"content": result}
         except HTTPException as e:
             raise e
         except Exception as e:
-            print(f"Error executing tool: {e}")
+            print(f"Error executing tool {tool_name}: {e}")
             raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    return endpoint_handler
 
+# Register endpoints for each tool
+for tool_name, config in TOOL_MAPPING.items():
+    handler = create_endpoint_handler(
+        tool_name=tool_name,
+        method=config["method"],
+        args_model=config["args_model"]
+    )
+    
     app.post(
         f"/{tool_name}",
         response_model=ToolResponse,
-        summary=tool_description,
+        summary=config["description"],
         description=f"Executes the {tool_name} tool. Arguments are passed in the request body.",
         tags=["Slack Tools"],
         name=tool_name
-    )(endpoint_func)
+    )(handler)
 
 # --- Root Endpoint ---
 @app.get("/", summary="Root endpoint", include_in_schema=False)
