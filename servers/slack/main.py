@@ -119,19 +119,19 @@ class SlackClient:
     async def get_channels(self, args: ListChannelsArgs) -> Dict[str, Any]:
         limit = args.limit
         cursor = args.cursor
-        
+
         async def fetch_channel_with_history(channel_id: str) -> Dict[str, Any]:
             # First get channel info
             channel_info = await self._request("GET", "conversations.info", params={"channel": channel_id})
             if not channel_info.get("ok") or channel_info.get("channel", {}).get("is_archived"):
                 return None
-            
+
             channel_data = channel_info["channel"]
-            
+
             # Then get channel history
             try:
                 history = await self._request(
-                    "GET", 
+                    "GET",
                     "conversations.history",
                     params={
                         "channel": channel_id,
@@ -144,7 +144,7 @@ class SlackClient:
             except Exception as e:
                 print(f"Error fetching history for channel {channel_id}: {e}")
                 channel_data["history"] = []
-                
+
             return channel_data
 
         if PREDEFINED_CHANNEL_IDS:
@@ -155,7 +155,7 @@ class SlackClient:
                         channels_info.append(channel_data)
                 except Exception as e:
                     print(f"Could not fetch info for predefined channel {channel_id}: {e}")
-            
+
             return {
                 "ok": True,
                 "channels": channels_info,
@@ -171,12 +171,12 @@ class SlackClient:
             }
             if cursor:
                 params["cursor"] = cursor
-                
+
             channels_list = await self._request("GET", "conversations.list", params=params)
-            
+
             if not channels_list.get("ok"):
                 return channels_list
-                
+
             # Then fetch history for each channel
             channels_with_history = []
             for channel in channels_list["channels"]:
@@ -186,7 +186,7 @@ class SlackClient:
                 except Exception as e:
                     print(f"Error fetching history for channel {channel['id']}: {e}")
                     channels_with_history.append(channel)  # Fall back to channel info without history
-                    
+
             return {
                 "ok": True,
                 "channels": channels_with_history,
@@ -289,7 +289,7 @@ for tool_name, config in TOOL_MAPPING.items():
         method=config["method"],
         args_model=config["args_model"]
     )
-    
+
     app.post(
         f"/{tool_name}",
         response_model=ToolResponse,
