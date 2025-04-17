@@ -11,10 +11,11 @@ from typing import List, Optional, Literal
 import difflib
 import shutil
 from datetime import datetime, timezone
-from .config import ALLOWED_DIRECTORIES
+from config import ALLOWED_DIRECTORIES
+
 app = FastAPI(
     title="Secure Filesystem API",
-    version="0.1.0",
+    version="0.1.1",
     description="A secure file manipulation server for reading, editing, writing, listing, and searching files with access restrictions.",
 )
 
