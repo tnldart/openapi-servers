@@ -44,7 +44,7 @@ All functionality is wrapped in a developer-friendly OpenAPI interface, making i
 ---
 
 ## 🔑 Prerequisites
-
+Most of this is pulled straight from the Slack Python SDK so the barebones readme can easily be supplemented by reading the official one. Setup looks like:
 1. **Slack Bot Token**: Create a Slack App and get a Bot User OAuth Token
    - Visit [Slack API Apps](https://api.slack.com/apps)
    - Create a new app or select existing
@@ -56,9 +56,10 @@ All functionality is wrapped in a developer-friendly OpenAPI interface, making i
      - `users:read`
      - `users:read.email`
    - Install the app to your workspace
+   - You'll get the bot token on the last screen. 
 
 2. **Team ID**: Your Slack workspace/team ID
-   - Found in workspace settings or URL
+   - Found in workspace settings or URL (go to your slack instance via web and it'll be after the slash)
 
 3. **Channel IDs** (Optional):
    - Restrict the server to specific channels
