@@ -7,12 +7,12 @@ from pydantic import BaseModel, Field
 import os
 import pathlib
 import asyncio
-from typing import List, Optional, Literal, Dict, Union # Added Dict, Union
+from typing import List, Optional, Literal, Dict, Union
 import difflib
 import shutil
-from datetime import datetime, timezone, timedelta # Added timedelta
-import uuid # Added uuid
-import json # Added json
+from datetime import datetime, timezone, timedelta
+import json
+import secrets
 from config import ALLOWED_DIRECTORIES
 
 app = FastAPI(
@@ -469,7 +469,7 @@ async def delete_path(data: DeletePathRequest = Body(...)):
              raise HTTPException(status_code=404, detail=f"Path not found: {data.path}")
 
         # Generate token and expiry
-        token = uuid.uuid4().hex
+        token = secrets.token_hex(3)[:5] # Generate 6 hex chars (3 bytes), take first 5
         expiry_time = now + timedelta(seconds=CONFIRMATION_TTL_SECONDS)
 
         # Store confirmation details
@@ -481,8 +481,10 @@ async def delete_path(data: DeletePathRequest = Body(...)):
         save_confirmations(pending_confirmations) # Save updated state
 
         # Return confirmation required response
+        # Construct the user-friendly message
+        confirmation_message = f"`Confirm deletion of file: {data.path} with token {token}`"
         return ConfirmationRequiredResponse(
-            message="Confirmation required to delete path. Use the provided token in a subsequent request with the same parameters.",
+            message=confirmation_message,
             confirmation_token=token,
             expires_at=expiry_time,
         )
