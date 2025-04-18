@@ -21,7 +21,7 @@ pip install -r requirements.txt
 # Set up environment variables
 export SLACK_BOT_TOKEN="xoxb-your-bot-token"
 export SLACK_TEAM_ID="your-team-id"
-export SLACK_CHANNEL_IDS="comma,separated,channel,ids" # Optional: restrict to specific channels
+export SLACK_CHANNEL_IDS="comma,separated,channel,ids" # Optional: restrict to specific channels - leave blank to include all channels that the bot user has been added to
 
 # Run the server
 uvicorn main:app --host 0.0.0.0 --reload
@@ -44,7 +44,7 @@ All functionality is wrapped in a developer-friendly OpenAPI interface, making i
 ---
 
 ## 🔑 Prerequisites
-Most of this is pulled straight from the Slack Python SDK so the barebones readme can easily be supplemented by reading the official one. Setup looks like:
+Most of this is pulled straight from the Slack Python SDK so the barebones readme can easily be supplemented by reading the official docs. To set up, you need to follow these steps:
 1. **Slack Bot Token**: Create a Slack App and get a Bot User OAuth Token
    - Visit [Slack API Apps](https://api.slack.com/apps)
    - Create a new app or select existing
