@@ -47,5 +47,9 @@ COPY . .
 # Expose the port that the application listens on.
 EXPOSE 8000
 
-# Run the application.
-CMD uvicorn 'main:app' --host=0.0.0.0 --port=8000
+# Add a healthcheck to verify the server is running
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD curl --fail http://localhost:8000/ || exit 1
+
+# Run the application using the JSON array form to avoid shell interpretation issues.
+CMD ["uvicorn", "main:app", "--host=0.0.0.0", "--port=8000"]

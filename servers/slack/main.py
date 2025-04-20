@@ -1,11 +1,18 @@
 import os
 import httpx
 import inspect
+import logging
+import json # For JSONDecodeError
 from typing import Optional, List, Dict, Any, Type, Callable
-from fastapi import FastAPI, HTTPException, Body, Depends
+from fastapi import FastAPI, HTTPException, Body, Depends, Security
+from fastapi.security import APIKeyHeader
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
+
+# --- Logging Setup ---
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # Load environment variables from .env file
 load_dotenv()
@@ -14,10 +21,15 @@ load_dotenv()
 SLACK_BOT_TOKEN = os.getenv("SLACK_BOT_TOKEN")
 SLACK_TEAM_ID = os.getenv("SLACK_TEAM_ID")
 SLACK_CHANNEL_IDS_STR = os.getenv("SLACK_CHANNEL_IDS") # Optional
+ALLOWED_ORIGINS_STR = os.getenv("ALLOWED_ORIGINS", "*") # Default to allow all
+SERVER_API_KEY = os.getenv("SERVER_API_KEY") # Optional API key for security
 
 if not SLACK_BOT_TOKEN:
+    # Fail fast if essential config is missing
+    logger.critical("SLACK_BOT_TOKEN environment variable not set.")
     raise ValueError("SLACK_BOT_TOKEN environment variable not set.")
 if not SLACK_TEAM_ID:
+    logger.critical("SLACK_TEAM_ID environment variable not set.")
     raise ValueError("SLACK_TEAM_ID environment variable not set.")
 
 PREDEFINED_CHANNEL_IDS = [
@@ -32,15 +44,37 @@ app = FastAPI(
     description="FastAPI server providing Slack functionalities via specific, dynamically generated tool endpoints.",
 )
 
-origins = ["*"]
+# Configure CORS
+allow_origins = [origin.strip() for origin in ALLOWED_ORIGINS_STR.split(',')]
+if allow_origins == ["*"]:
+    logger.warning("CORS allow_origins is set to '*' which is insecure for production. Consider setting ALLOWED_ORIGINS environment variable.")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=allow_origins,
+    allow_credentials=True, # Allow credentials if origins are specific, adjust if needed
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# --- API Key Security ---
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False) # auto_error=False to handle optional key
+
+async def get_api_key(key: str = Security(api_key_header)):
+    if SERVER_API_KEY: # Only enforce key if it's set in the environment
+        if not key:
+            logger.warning("API Key required but not provided in X-API-Key header.")
+            raise HTTPException(status_code=401, detail="X-API-Key header required")
+        if key != SERVER_API_KEY:
+            logger.warning("Invalid API Key provided.")
+            raise HTTPException(status_code=401, detail="Invalid API Key")
+        # If key is valid and required, proceed
+    # If SERVER_API_KEY is not set, allow access without a key
+    # logger.info("API Key check passed (or not required).") # Optional: Log successful checks
+    return key # Return the key or None if not required/provided
+
+if not SERVER_API_KEY:
+    logger.warning("SERVER_API_KEY environment variable is not set. Server will allow unauthenticated requests.")
 
 # [Previous Pydantic models remain the same...]
 class ListChannelsArgs(BaseModel):
@@ -98,18 +132,29 @@ class SlackClient:
                 data = response.json()
                 if not data.get("ok"):
                     error_msg = data.get("error", "Unknown Slack API error")
-                    print(f"Slack API Error for {method} {endpoint}: {error_msg}")
-                    raise HTTPException(status_code=400, detail={"slack_error": error_msg, "message": f"Slack API Error: {error_msg}"})
+                    # Return the specific Slack error in the response
+                    logger.warning(f"Slack API Error for {method} {endpoint}: {error_msg}")
+                    raise HTTPException(status_code=400, detail={"slack_error": error_msg, "message": f"Slack API returned an error: {error_msg}"})
                 return data
             except httpx.HTTPStatusError as e:
-                print(f"HTTP Error: {e.response.status_code} - {e.response.text}")
-                raise HTTPException(status_code=e.response.status_code, detail=f"Slack API HTTP Error: {e.response.text}")
+                # Handle specific HTTP errors like rate limiting (429)
+                if e.response.status_code == 429:
+                    retry_after = e.response.headers.get("Retry-After")
+                    detail = f"Slack API rate limit exceeded. Retry after {retry_after} seconds." if retry_after else "Slack API rate limit exceeded."
+                    logger.warning(f"Rate limit hit for {method} {endpoint}. Retry-After: {retry_after}")
+                    raise HTTPException(status_code=429, detail=detail, headers={"Retry-After": retry_after} if retry_after else {})
+                else:
+                    logger.error(f"HTTP Error: {e.response.status_code} - {e.response.text}", exc_info=True)
+                    raise HTTPException(status_code=e.response.status_code, detail=f"Slack API HTTP Error: Status {e.response.status_code}")
             except httpx.RequestError as e:
-                print(f"Request Error: {e}")
-                raise HTTPException(status_code=503, detail=f"Error connecting to Slack API: {e}")
-            except Exception as e:
-                print(f"Unexpected Error during Slack request: {e}")
-                raise HTTPException(status_code=500, detail=f"An internal error occurred during the Slack request: {e}")
+                logger.error(f"Request Error connecting to Slack API: {e}", exc_info=True)
+                raise HTTPException(status_code=503, detail=f"Could not connect to Slack API: {e}")
+            except json.JSONDecodeError as e:
+                 logger.error(f"Failed to decode JSON response from Slack API for {method} {endpoint}: {e}", exc_info=True)
+                 raise HTTPException(status_code=502, detail="Invalid response received from Slack API.")
+            except Exception as e: # Catch other unexpected errors
+                logger.exception(f"Unexpected error during Slack request for {method} {endpoint}: {e}") # Use logger.exception to include traceback
+                raise HTTPException(status_code=500, detail=f"An internal server error occurred: {type(e).__name__}")
 
     async def get_channel_history(self, args: GetChannelHistoryArgs) -> Dict[str, Any]:
         params = {"channel": args.channel_id, "limit": args.limit}
@@ -134,15 +179,15 @@ class SlackClient:
                     "conversations.history",
                     params={
                         "channel": channel_id,
-                        "limit": 10  # Get last 10 messages by default
+                        "limit": 1 # Fetch minimal history by default to speed up get_channels. Consider asyncio.gather for concurrency.
                     }
                 )
                 # Add history to channel data
                 if history.get("ok"):
                     channel_data["history"] = history.get("messages", [])
-            except Exception as e:
-                print(f"Error fetching history for channel {channel_id}: {e}")
-                channel_data["history"] = []
+            except Exception as e: # Catch errors during history fetch but don't fail the whole channel list
+                logger.warning(f"Error fetching history for channel {channel_id}: {e}", exc_info=True)
+                channel_data["history"] = [] # Ensure history key exists even if fetch fails
 
             return channel_data
 
@@ -152,8 +197,8 @@ class SlackClient:
                 try:
                     if channel_data := await fetch_channel_with_history(channel_id):
                         channels_info.append(channel_data)
-                except Exception as e:
-                    print(f"Could not fetch info for predefined channel {channel_id}: {e}")
+                except Exception as e: # Catch errors fetching predefined channels
+                    logger.warning(f"Could not fetch info for predefined channel {channel_id}: {e}", exc_info=True)
 
             return {
                 "ok": True,
@@ -182,9 +227,10 @@ class SlackClient:
                 try:
                     if channel_data := await fetch_channel_with_history(channel["id"]):
                         channels_with_history.append(channel_data)
-                except Exception as e:
-                    print(f"Error fetching history for channel {channel['id']}: {e}")
-                    channels_with_history.append(channel)  # Fall back to channel info without history
+                except Exception as e: # Catch errors during history fetch but don't fail the whole channel list
+                    logger.warning(f"Error fetching history for channel {channel['id']}: {e}", exc_info=True)
+                    channel["history"] = [] # Add empty history on error
+                    channels_with_history.append(channel)
 
             return {
                 "ok": True,
@@ -268,17 +314,20 @@ TOOL_MAPPING = {
     },
 }
 
-# Define a function factory to create endpoint handlers
+# Define a function factory to create endpoint handlers, including API key dependency
 def create_endpoint_handler(tool_name: str, method: Callable, args_model: Type[BaseModel]):
-    async def endpoint_handler(args: args_model = Body(...)) -> ToolResponse:
+    async def endpoint_handler(
+        args: args_model = Body(...),
+        api_key: str = Depends(get_api_key) # Add API key dependency here
+    ) -> ToolResponse:
         try:
             result = await method(args=args)
             return {"content": result}
         except HTTPException as e:
             raise e
         except Exception as e:
-            print(f"Error executing tool {tool_name}: {e}")
-            raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+            logger.exception(f"Error executing tool {tool_name}: {e}") # Use logger.exception here too
+            raise HTTPException(status_code=500, detail=f"Internal server error: {type(e).__name__}")
     return endpoint_handler
 
 # Register endpoints for each tool
