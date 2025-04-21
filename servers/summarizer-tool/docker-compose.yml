@@ -1,0 +1,22 @@
+services:
+  summarizer:
+    container_name: summarizer
+    image: python:3-slim
+    ports:
+      - 16000:8000
+    restart: unless-stopped
+    environment:
+      - MODEL=llama3
+      - MODEL_URL=http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - .:/app
+    entrypoint: >
+      sh -c "
+        apt update && 
+        apt install -y git &&
+        cd /app &&
+        pip install -r ./requirements.txt &&
+        fastapi run
+      "
