@@ -19,9 +19,10 @@ cd openapi-servers/servers/slack
 pip install -r requirements.txt
 
 # Set up environment variables
-export SLACK_BOT_TOKEN="xoxb-your-bot-token"
-export SLACK_TEAM_ID="your-team-id"
-export SLACK_CHANNEL_IDS="comma,separated,channel,ids" # Optional: restrict to specific channels - leave blank to include all channels that the bot user has been added to
+export SLACK_BOT_TOKEN="xoxb-your-bot-token" # Required: Your Slack bot token
+export SLACK_TEAM_ID="your-team-id"         # Required: Your Slack team ID
+export SLACK_CHANNEL_IDS="C1,C2"            # Optional: Comma-separated channel IDs to restrict access to
+export SERVER_API_KEY="your-secret-key"     # Optional: If set, requires 'X-API-Key' header for requests
 
 # Run the server
 uvicorn main:app --host 0.0.0.0 --reload
@@ -44,7 +45,9 @@ All functionality is wrapped in a developer-friendly OpenAPI interface, making i
 ---
 
 ## 🔑 Prerequisites
+
 Most of this is pulled straight from the Slack Python SDK so the barebones readme can easily be supplemented by reading the official docs. To set up, you need to follow these steps:
+
 1. **Slack Bot Token**: Create a Slack App and get a Bot User OAuth Token
    - Visit [Slack API Apps](https://api.slack.com/apps)
    - Create a new app or select existing
@@ -57,13 +60,15 @@ Most of this is pulled straight from the Slack Python SDK so the barebones readm
      - `users:read.email`
    - Install the app to your workspace
    - You'll get the bot token on the last screen. 
-
 2. **Team ID**: Your Slack workspace/team ID
    - Found in workspace settings or URL (go to your slack instance via web and it'll be after the slash)
-
 3. **Channel IDs** (Optional):
    - Restrict the server to specific channels
    - Comma-separated list of channel IDs
+4. **Server API Key** (`SERVER_API_KEY`, Optional):
+   - If you set this environment variable to a secret value (e.g., a strong random string), the server will require this key to be passed in the `X-API-Key` HTTP header for all incoming requests.
+   - This provides a layer of authentication to protect your server endpoint.
+   - If left unset, the server will accept requests without API key authentication (less secure).
 
 ---
 
@@ -88,8 +93,8 @@ Each tool is available as a dedicated endpoint with full OpenAPI documentation.
 
 Once running, explore the interactive API documentation:
 
-🖥️ Swagger UI: http://localhost:8000/docs
-📄 OpenAPI JSON: http://localhost:8000/openapi.json
+🖥️ Swagger UI: http://localhost:8000/docs  
+📄 OpenAPI JSON: http://localhost:8000/openapi.json  
 
 The documentation includes detailed schemas, example requests, and response formats for all available tools.
 
@@ -99,10 +104,11 @@ The documentation includes detailed schemas, example requests, and response form
 
 - Keep your `SLACK_BOT_TOKEN` secure
 - Use environment variables for sensitive credentials
-- Consider implementing additional authentication for the API server in production
+- Consider implementing additional authentication for the API server in production. Setting the `SERVER_API_KEY` environment variable is the recommended way to add basic authentication.
+- If `SERVER_API_KEY` is set, ensure clients send the correct key in the `X-API-Key` header.
 - Review Slack's [security best practices](https://api.slack.com/authentication/best-practices)
 
 ---
 
-Made with ❤️ by the Open WebUI community 🌍
+Made with ❤️ by the Open WebUI community 🌍  
 Explore more tools ➡️ https://github.com/open-webui/openapi-servers
