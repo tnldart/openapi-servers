@@ -59,7 +59,7 @@ Most of this is pulled straight from the Slack Python SDK so the barebones readm
      - `users:read`
      - `users:read.email`
    - Install the app to your workspace
-   - You'll get the bot token on the last screen. 
+   - You'll get the bot token on the last screen.
 2. **Team ID**: Your Slack workspace/team ID
    - Found in workspace settings or URL (go to your slack instance via web and it'll be after the slash)
 3. **Channel IDs** (Optional):
@@ -93,8 +93,8 @@ Each tool is available as a dedicated endpoint with full OpenAPI documentation.
 
 Once running, explore the interactive API documentation:
 
-🖥️ Swagger UI: http://localhost:8000/docs  
-📄 OpenAPI JSON: http://localhost:8000/openapi.json  
+🖥️ Swagger UI: http://localhost:8000/docs
+📄 OpenAPI JSON: http://localhost:8000/openapi.json
 
 The documentation includes detailed schemas, example requests, and response formats for all available tools.
 
@@ -110,5 +110,5 @@ The documentation includes detailed schemas, example requests, and response form
 
 ---
 
-Made with ❤️ by the Open WebUI community 🌍  
+Made with ❤️ by the Open WebUI community 🌍
 Explore more tools ➡️ https://github.com/open-webui/openapi-servers
