@@ -48,12 +48,10 @@ Reference implementations provided in this repository demonstrate common use-cas
 - [**Memory & Knowledge Graph**](servers/memory) - Persistent memory management and semantic knowledge querying using popular and reliable storage techniques.
 - [**Weather Server**](servers/weather) - Provide current weather conditions and forecasts from trusted public APIs.
 - [**Get User Info Server**](servers/get-user-info) - Access and return enriched user profile information from authentication providers or internal systems.
-- [**WIP: Web Search & Fetch**](servers/web-search) - Retrieve and convert web-based content securely into structured API results usable by LLMs.
-- [**WIP: Database Server**](servers/database) - Query and inspect database schemas across common DB engines like PostgreSQL, MySQL, and SQLite.
-
+- [**SQL Chat Server**](servers/sql) - Connect to SQL databases and automatically generate, execute, and optimize queries based on your database schema and natural language input. Enables chat-based data exploration, leveraging external Retrieval-Augmented Generation (RAG) for advanced query assistance.
+- [**External RAG Tool Server**](servers/external-rag) - Connect and execute your own Retrieval-Augmented Generation (RAG) pipelines as callable API tools. Easily integrate custom or third-party RAG flows, providing structured access and modular composition for knowledge-intensive applications.
 
 (More examples and reference implementations will be actively developed and continually updated.)
-
 
 > [!IMPORTANT]  
 > 💡 Contribute Your Server!
