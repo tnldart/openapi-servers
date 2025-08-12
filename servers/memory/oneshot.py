@@ -1,7 +1,7 @@
 # /// script
 # dependencies = ["httpx", "fastapi[standard]"]
 # ///
-# meant to be run with uv run
+# meant to be run with uv run - inspired by https://github.com/ivanfioravanti/qwen-image-mps/blob/main/qwen-image-mps.py
 import sys, tempfile, pathlib, httpx, subprocess, os, shutil
 
 def main():
