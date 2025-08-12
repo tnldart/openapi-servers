@@ -1,5 +1,15 @@
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#     "fastapi",
+#     "pydantic",
+#     "uvicorn",
+# ]
+# ///
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
+
+import uvicorn
 
 
 from pydantic import BaseModel, Field
@@ -295,3 +305,6 @@ def open_nodes(req: OpenNodesRequest):
     names = {e.name for e in entities}
     relations = [r for r in graph.relations if r.from_ in names and r.to in names]
     return KnowledgeGraph(entities=entities, relations=relations)
+
+if __name__ == "__main__":
+	uvicorn.run("main:app", host="127.0.0.1", port=8000)
