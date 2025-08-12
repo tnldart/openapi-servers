@@ -5,7 +5,7 @@ import sys, tempfile, pathlib, httpx, subprocess, os, shutil
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: fastapi_remote_runner.py <raw-main.py-url> [extra fastapi dev args]", file=sys.stderr)
+        print("Usage: oneshot.py <raw-main.py-url> [extra fastapi dev args]", file=sys.stderr)
         sys.exit(2)
 
     url = sys.argv[1]
