@@ -1,6 +1,7 @@
 # /// script
 # dependencies = ["httpx", "fastapi[standard]"]
 # ///
+# meant to be run with uv run
 import sys, tempfile, pathlib, httpx, subprocess, os, shutil
 
 def main():
