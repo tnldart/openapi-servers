@@ -1,5 +1,5 @@
 # /// script
-# dependencies = ["httpx", "fastapi"]
+# dependencies = ["httpx", "fastapi[standard]"]
 # ///
 import sys, tempfile, pathlib, httpx, subprocess, os, shutil
 
