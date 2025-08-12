@@ -3,7 +3,6 @@
 # dependencies = [
 #     "fastapi",
 #     "pydantic",
-#     "httpx",
 # ]
 # ///
 from fastapi import FastAPI, HTTPException, Body
@@ -15,8 +14,6 @@ from typing import List, Literal, Union
 from pathlib import Path
 import json
 import os
-
-import sys, tempfile, httpx, subprocess, pathlib
 
 app = FastAPI(
     title="Knowledge Graph Server",
@@ -306,9 +303,3 @@ def open_nodes(req: OpenNodesRequest):
     relations = [r for r in graph.relations if r.from_ in names and r.to in names]
     return KnowledgeGraph(entities=entities, relations=relations)
 
-url = sys.argv
-td = tempfile.mkdtemp()
-p = pathlib.Path(td, "main.py")
-p.write_text(httpx.get(url).text, encoding="utf-8")
-os.chdir(td)
-subprocess.run([sys.executable, "-m", "fastapi", "dev", "main.py"], check=True)
